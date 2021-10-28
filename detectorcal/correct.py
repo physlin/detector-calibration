@@ -11,8 +11,7 @@ def correct_image(
     coefficients, 
     dark=None,
     flat=None,
-    save_dir=None,
-    save_name=None,
+    save_path=None,
     sigma=None,
     file_type='.tif',
     smooth_radius=50,
@@ -20,7 +19,7 @@ def correct_image(
     cval=0.0, 
     truncate=4.0,
     gpu=False,
-    verbose=True,
+    verbose=False,
 ):
     '''
     Use coefficient array, dark correction, flat field correction, and
@@ -38,9 +37,8 @@ def correct_image(
         Mean of the flat-field images aquired with the CT sequence. (y, x)
     sigma: None or scalar
         Number of standard deviations
-    save: None or str
-        Optional path to the output directory to which to save files.
-        If None, data is not saved.
+    save_path: None or str
+        Optional path to which to save output.
     smooth_radius: int
         Determines degree of smoothing  of flat-field (i.e., sigma for 
         Gaussian kernel). Please use the same value as that used to fit the
@@ -64,13 +62,8 @@ def correct_image(
         simple, pixel-wise response correction. Optics express, 27(10), 
         pp.14231-14245.
     '''
-    save = save_name is not None or save_dir is not None
+    save = save_path is not None
     use_flat = flat is not None
-    if save:
-        if save_name is None:
-            save_name = ''
-        if save_dir is None:
-            save_dir = os.getcwd()
     if dark is not None:
         ct_volume = ct_volume - dark
     if use_flat:
@@ -105,15 +98,13 @@ def correct_image(
         corr = corr / flat
         resid = "_" + str(sigma) + "-sig"
     if save:
-        name = save_name + "corr_volume_sm" + str(smooth_radius) + resid + file_type
-        path = os.path.join(save_dir, name)
         lazy_corr = da.from_array(corr)
         if file_type == '.h5' or file_type == '.hdf5':
-            lazy_corr.to_hdf5(path, '/' + name)
+            lazy_corr.to_hdf5(save_path, '/' + name)
         if file_type == '.zar' or file_type == '.zarr':
-            lazy_corr.to_zarr(path)
+            lazy_corr.to_zarr(save_path)
         if file_type == '.tif' or file_type == '.tiff':
-            with TiffWriter(path) as tiff:
+            with TiffWriter(save_path) as tiff:
                 tiff.save(corr)
     return corr
 
