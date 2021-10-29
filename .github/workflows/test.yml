@@ -40,13 +40,16 @@ jobs:
           channel-priority: strict
           python-version: ${{ matrix.python }}
 
-      # not totally sure this will work ?
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install setuptools
           pip install .[all]
-          
+      
+      - name: Pytest
+        run: |
+          pytest 
+      
       - name: Coverage
         if: runner.os == 'Linux' && matrix.python == '3.9'
         uses: codecov/codecov-action@v1
