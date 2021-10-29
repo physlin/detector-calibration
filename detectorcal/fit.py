@@ -1,10 +1,8 @@
-import os
-from distributed.deploy.cluster import Cluster
+
 import numpy as np
 import dask.array as da
-from dask.distributed import Client, LocalCluster, as_completed
+from dask.distributed import Client, LocalCluster
 from time import time
-from itertools import product
 from toolz import curry
 from tifffile import TiffWriter
 from scipy.ndimage.filters import gaussian_filter

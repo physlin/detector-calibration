@@ -1,8 +1,6 @@
 import dask.array as da
 from .fit import gaussian_smooth
 import numpy as np
-import os
-from pathlib import Path
 from tifffile import TiffWriter
 
 
