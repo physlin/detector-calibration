@@ -1,9 +1,8 @@
-import os
+
 import numpy as np
 import dask.array as da
 from dask.distributed import Client, LocalCluster
 from time import time
-from itertools import product
 from toolz import curry
 from tifffile import TiffWriter
 from scipy.ndimage.filters import gaussian_filter
