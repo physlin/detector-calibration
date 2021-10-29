@@ -46,9 +46,9 @@ jobs:
           pip install setuptools
           pip install .[all]
       
-      #- name: Pytest
-        #run: |
-         # pytest 
+      - name: Pytest
+        run: |
+          pytest 
       
       - name: Coverage
         if: runner.os == 'Linux' && matrix.python == '3.9'
