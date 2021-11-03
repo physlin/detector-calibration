@@ -2,7 +2,14 @@ import dask.array as da
 from .fit import gaussian_smooth
 import numpy as np
 from tifffile import TiffWriter
-
+from pathlib import Path
+# determine cupy will be imported and used
+#try:
+ #   import cupy as cp
+  #  USE_GPU = True
+#except ImportError:
+ #   USE_GPU = False
+#USE_GPU = True
 
 def correct_image(
     ct_volume, 
@@ -11,7 +18,6 @@ def correct_image(
     flat=None,
     save_path=None,
     sigma=None,
-    file_type='.tif',
     smooth_radius=50,
     mode='nearest',
     cval=0.0, 
@@ -62,6 +68,17 @@ def correct_image(
     '''
     save = save_path is not None
     use_flat = flat is not None
+    if gpu:
+        try:
+            import cupy as cp
+            ct_volume = cp.array(ct_volume)
+            coefficients = cp.array(coefficients)
+            if dark is not None:
+                dark = cp.array(dark)
+            if use_flat:
+                flat = cp.array(flat)
+        except ImportError:
+            raise ImportError('Please install cupy into your local environment to use GPU acceleration')
     if dark is not None:
         ct_volume = ct_volume - dark
     if use_flat:
@@ -96,9 +113,13 @@ def correct_image(
         corr = corr / flat
         resid = "_" + str(sigma) + "-sig"
     if save:
+        if gpu:
+            if isinstance(corr, cp._core.core.ndarray):
+                corr = corr.get()
+        file_type = Path(save_path).suffix
         lazy_corr = da.from_array(corr)
         if file_type == '.h5' or file_type == '.hdf5':
-            lazy_corr.to_hdf5(save_path, '/' + name)
+            lazy_corr.to_hdf5(save_path, '/data')
         if file_type == '.zar' or file_type == '.zarr':
             lazy_corr.to_zarr(save_path)
         if file_type == '.tif' or file_type == '.tiff':

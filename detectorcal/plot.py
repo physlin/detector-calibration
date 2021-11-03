@@ -1,4 +1,3 @@
-from dask.utils import factors
 import numpy as np
 import matplotlib.pyplot as plt
 from .fit import fit_pixel, gaussian_smooth
@@ -38,7 +37,7 @@ def plot_pixel_calibrations(
         Standard deviation for the Gaussian Kernel used for smoothing
     cutoff: scalar
         ##
-    coords: list of list
+    coords: None or list of list
         List of the form [[y_coord, x_coord], ...]
     inch_per_plot: scalar
         How many inches to add to figure size in each dim for each plot
@@ -55,7 +54,7 @@ def plot_pixel_calibrations(
     else:
         # get the raveled indices for the xy plane
         coords = np.array(coords).T
-        idxs = np.ravel_multi_index(coords)
+        idxs = np.ravel_multi_index(coords, (y, x))
     fits = []
     for i in idxs:
         # linear fits only for the selected pixels
