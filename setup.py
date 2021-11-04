@@ -38,7 +38,7 @@ setuptools.setup(
         'h5py', 
         'zarr'],
     extras_require={
-        'testing': ['pytest', 'pytest-cov', 'coverage'],
+        'testing': ['pytest', 'pytest-cov', 'coverage', 'asv'],
         'gpu': ['cupy'],  # pip install detectorcal[gpu]
     },
 )
