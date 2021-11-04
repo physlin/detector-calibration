@@ -35,7 +35,8 @@ setuptools.setup(
         'scikit-image', 
         'pytest', 
         'sphinx', 
-        'h5py'],
+        'h5py', 
+        'zarr'],
     extras_require={
         'testing': ['pytest', 'pytest-cov', 'coverage'],
         'gpu': ['cupy'],  # pip install detectorcal[gpu]
