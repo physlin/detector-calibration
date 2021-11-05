@@ -7,7 +7,15 @@ from toolz import curry
 from tifffile import TiffWriter
 from scipy.ndimage.filters import gaussian_filter
 from multiprocessing import Pool, cpu_count
-
+from pathlib import Path
+from shutil import rmtree
+# determine cupy will be imported and used
+#try:
+ #   import cupy as cp
+  #  USE_GPU = True
+#except ImportError:
+ #   USE_GPU = False
+#USE_GPU = True
 # -------------
 # Fit Beamsweep
 # -------------
@@ -15,7 +23,7 @@ from multiprocessing import Pool, cpu_count
 def fit_response(
     volume,
     dark=None, 
-    save=None,
+    save_path=None,
     sigma=50, 
     mode='nearest',
     cval=0.0, 
@@ -43,7 +51,7 @@ def fit_response(
         Array containing the stack of detector responses.
     dark: None or np.ndarray
         Array containing the dark current image or None.
-    save: None or str
+    save_path: None or str
         Path to which the fit coefficients should be saved.
         If None, the coefficients will not be saved to disk. 
     sigma: scalar
@@ -55,7 +63,9 @@ def fit_response(
     truncate: float
         truncate filter at this many standard deviations.
     gpu: bool
-        Will gpu acceleration be required (or possible)?
+        Will gpu acceleration be required (or possible)? If unspecified, this will
+        be determined by whether the cupy package is installed (as it will be if
+        detectorcal has been installed with the .[gpu] option)
     verbose: bool
         Should messages be printed to the console?
     hpc: bool
@@ -103,9 +113,19 @@ def fit_response(
     #fit = sequential_fit(volume, smoothed, cutoff)
     fit = polyfit_deg_1(client, volume, smoothed, cutoff, verbose, n_processes)
     # save coefficients if a path is provided
-    if save is not None:
-        with TiffWriter(save) as tiff:
-            tiff.write(fit)
+    if save_path is not None:
+        if gpu:
+            if isinstance(fit, cp._core.core.ndarray):
+                fit = fit.get()
+        file_type = Path(save_path).suffix
+        lazy_fit = da.from_array(fit)
+        if file_type == '.h5' or file_type == '.hdf5':
+            lazy_fit.to_hdf5(save_path, '/data')
+        if file_type == '.zar' or file_type == '.zarr':
+            lazy_fit.to_zarr(save_path)
+        if file_type == '.tif' or file_type == '.tiff':
+            with TiffWriter(save_path) as tiff:
+                tiff.save(fit)
     client.close()
     return fit
 
@@ -298,34 +318,28 @@ def sequential_gauss(
     cval=0.0, 
     truncate=4.0,
 ):
-    out = []
+    out = np.zeros_like(volume)
     for i in range(volume.shape[0]):
-        v = gaussian_filter(volume[i], sigma, 0, None, mode, cval, truncate)
-        out.append(v)
-    return np.stack(v)
+        v = gaussian_filter(volume[i, ...], sigma, 0, None, mode, cval, truncate)
+        out[i, ...] = v
+    return out
 
 
 def sequential_fit(volume, smoothed, cutoff):
     t = time()
     fit = np.zeros(shape=(1,volume.shape[1],volume.shape[2]))
 
-    print("Fitting volume...")
+    #print("Fitting volume...")
     # Fit volume
     for j in range(volume.shape[1]):
-        print("Fitting row",j)
+        #print("Fitting row",j)
         for i in range(volume.shape[2]):
             points = np.where(smoothed[:,j,i]>cutoff)[0]
             fit[:,j,i] = np.linalg.lstsq(volume[points,j,i].reshape(-1,1), 
                                         smoothed[points,j,i], rcond=None)[0][0]
-    print(f'Fitted volume in {time() - t} seconds')
+    #print(f'Fitted volume in {time() - t} seconds')
     return fit[0, ...]
 
-
-def time_it(func, data, **kwargs):
-    t = time()
-    out = func(data, **kwargs)
-    print(f'Function {func.__name__} applied in {time() - t} seconds')
-    return out
 
 
 if __name__ == '__main__':
