@@ -4,6 +4,9 @@
 branch = True
 omit =
     */setup.py
+    */benchmarks/benchmark_correct.py
+    */benchmarks/benchmark_fit.py
+    */benchmarks/benchmark_plot.py
 
 [report]
 exclude_lines =
