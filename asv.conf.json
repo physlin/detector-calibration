@@ -1,0 +1,25 @@
+{
+    "version": 1,
+
+    "project": "detectorcal",
+    "project_url": "https://github.com/physlin/detector-calibration",
+    "repo": ".",
+
+    "branches": ["main"],
+    "dvcs": "git",
+    "environment_type": "conda",
+    "install_timeout": 1200,
+    "show_commit_url": "https://github.com/physlin/detector-calibration/detector-calibration/commit/",
+
+    "pythons": ["3.9"],
+    "matrix": {
+         "cython": [],
+         "numpy": ["1.20"],
+         "scipy": [],
+         "pooch": []
+    },
+
+    "env_dir": ".asv/env",
+    "results_dir": ".asv/results",
+    "html_dir": ".asv/html"
+}

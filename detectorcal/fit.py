@@ -329,15 +329,15 @@ def sequential_fit(volume, smoothed, cutoff):
     t = time()
     fit = np.zeros(shape=(1,volume.shape[1],volume.shape[2]))
 
-    print("Fitting volume...")
+    #print("Fitting volume...")
     # Fit volume
     for j in range(volume.shape[1]):
-        print("Fitting row",j)
+        #print("Fitting row",j)
         for i in range(volume.shape[2]):
             points = np.where(smoothed[:,j,i]>cutoff)[0]
             fit[:,j,i] = np.linalg.lstsq(volume[points,j,i].reshape(-1,1), 
                                         smoothed[points,j,i], rcond=None)[0][0]
-    print(f'Fitted volume in {time() - t} seconds')
+    #print(f'Fitted volume in {time() - t} seconds')
     return fit[0, ...]
 
 

@@ -23,4 +23,4 @@ class FitSuite:
     
     def time_fit_sequential(self):
         smoothed = sequential_gauss(self.bs)
-        _ = sequential_fit(self.bs, smoothed)
+        _ = sequential_fit(self.bs, smoothed, 0.9)
