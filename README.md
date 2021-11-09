@@ -58,7 +58,7 @@ coefficients = fit_response(volume, dark=dark, save='path/to/which/to/save/coeff
 # P.S.S. If you don't wish to save the coefficients the `save` argument can also be omitted
 ```
 
-The plots below show the calibration for 9 random pixels. These plots can be generated using `detectorcal.plot.plot_pixel_calibrations(volume, dark=dark, n_pixels=n)`, which will return measured vs true intesity scatter plots and fit lines for `n` random pixels. 
+The plots below show the calibration for 9 random pixels. These plots can be generated using `detectorcal.plot.plot_pixel_calibrations(volume, dark=dark, n_pixels=n)`, which will return fit lines and scatter plots showing measured- vs true intesity for `n` random pixels. 
 
 ![Calibrations for 9 random pixels](https://github.com/physlin/detector-calibration/blob/finishing-touches/data/some_pixel_claibrations_0.png)
 
