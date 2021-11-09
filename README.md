@@ -97,7 +97,7 @@ The following figure shows a reconstructed image both with and without residual 
 
 ## Citations
 
-If you use this software, please cite the following paper. 
+*If you use this software, please cite the following papers:*
 
 Croton, L. C., ... and Kitchen, M.J., 2021. Detector calibration for effective DT ring artefact supressionwith polychromatic X-ray sources. In Press. 
 
