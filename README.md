@@ -31,7 +31,7 @@ The algorithm implemented in this package corrects artefacts in images produced 
 During the 'fit' stage of the callibration process, a linear relationship between detector response and true stimulus intensity is found for every pixel in the detector. We can estimate the true intensity by applying a Gaussian filter to the stimulus-response image, which removes local pixel-to-pixel intensity variations. 
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=rqQI8tXwAgc" target="_blank">
- <img src="https://github.com/physlin/detector-calibration/blob/finishing-touches/data/detectorcal-fit-thumbnail.png" alt="Watch the video" width="50%" height="50%" border="10" />
+ <img src="https://github.com/physlin/detector-calibration/blob/finishing-touches/data/detectorcal-fit-thumbnail.png" alt="Watch the video" width="100%" height="100%" border="10" />
 </a>
 
 *Example of stimulus response data and linear coefficients produced using* `fit_response`. Animations created using `napari-animation`.
