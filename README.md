@@ -35,7 +35,7 @@ During the 'fit' stage of the callibration process, a linear relationship betwee
 </a>
 
 
-*Image redirects to a video showing an example of the use of* `fit_response`. Animations were created using `napari-animation`.
+*Image redirects to a video showing an example of* `fit_response`. Animations were created using `napari-animation`.
 
 Fitting is done using the `fit_response` function, for which example usage ish shown below. By default, the standard deviation for the Gaussian kernel used to smooth the image is 50 pixels. This can be adjusted using the optional `sigma` argument.
 
