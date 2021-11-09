@@ -85,6 +85,8 @@ def correct_image(
         flat_ed = np.expand_dims(flat, 0)
         flat_smoothed = gaussian_smooth(flat_ed, smooth_radius, mode, cval, 
                                         truncate, gpu, verbose)
+        if gpu:
+            flat_smoothed = cp.array(flat_smoothed)
         assert flat_smoothed.ndim == 3
         flat_smoothed = flat_smoothed[0, :, :]
     corr = ct_volume * coefficients

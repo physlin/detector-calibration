@@ -36,7 +36,8 @@ setuptools.setup(
         'pytest', 
         'sphinx', 
         'h5py', 
-        'zarr'],
+        'zarr', 
+        'numba'],
     extras_require={
         'testing': ['pytest', 'pytest-cov', 'coverage', 'asv'],
         'gpu': ['cupy'],  # pip install detectorcal[gpu]

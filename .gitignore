@@ -1,6 +1,7 @@
 # custom
 untracked
 .asv
+.vscode
 
 # dask
 dask-worker-space
