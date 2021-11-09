@@ -50,7 +50,7 @@ volume = imread('path/to/image/volume')
 dark = imread('path/to/dark/current/image')
 
 # Get the linear coefficients for the detector. shape = (y, x)
-coefficients = fit_response(volume, dark=dark, save='path/to/which/to/save/coefficients')
+coefficients = fit_response(volume, dark=dark, save_path='path/to/which/to/save/coefficients')
 
 # P.S. if you wish to fit the response to a volume without first subtracking the 
 # dark current (perhaps you already did this), the `dark` argument can be omitted
