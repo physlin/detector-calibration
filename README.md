@@ -34,7 +34,7 @@ During the 'fit' stage of the callibration process, a linear relationship betwee
  <img src="https://github.com/physlin/detector-calibration/blob/finishing-touches/data/detectorcal-fit-thumbnail.png" alt="Watch the video" width="100%" height="100%" border="10" />
 </a>
 
-*Links to video example of stimulus response data and linear coefficients produced using* `fit_response`. Animations created using `napari-animation`.
+*Links to video of showing an example of the use of * `fit_response`. Animations were created using `napari-animation`.
 
 Fitting is done using the `fit_response` function, for which example usage ish shown below. By default, the standard deviation for the Gaussian kernel used to smooth the image is 50 pixels. This can be adjusted using the optional `sigma` argument.
 
