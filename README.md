@@ -4,24 +4,34 @@ Python package for detector calibration. The calibration algorithm was initially
 
 
 ## Installation 
-The `detectorcal` package can be found on the Python Package Index (PyPI) and can be installed using pip using the following command. 
+The `detectorcal` package can be found on the Python Package Index (PyPI) and can be installed using pip. There are two extra install options including GPU support and testing capabilities. 
 
 ```bash
+# CPU only installation
 pip install detectorcal
+
+# with GPU support
+pip install detectorcal[gpu]
+
+# with testing capabilities
+pip install detectorcal[testing]
 ```
+
+## Usage
+
+Using detectorcal is a two step process: (1) calibrating the detector response, which is done by `detectorcal.fit_response` ; and (2) applying the calibration to the image that you want to correct, which requires  `detectorcal.correct_image`. Input to these funtions is expected to be `np.ndarray`. Both functions can be used to save output directly when supplied with the `save_path` argument. We support saving output as `.tif`, `.hdf5`, and `.zarr` files. 
 
 
 ## About `detectorcal`
 
-The algorithm implemented in this package corrects artefacts in images produced by a 2D detector by first finding the relationship between detector response and estimated true stimulus intensity. This relationship is then used this to 'reconstruct' an image aquired by the same detector. For this to work, you first need to aquire data that demonstrates the detector response across a range of stimulus intensities. In X-ray computed tomography, this would be done by sweeping the detector through the X-ray beam to aquire images across the range of possible intensities. This stimulus-response data should be a 3D array of shape (z, y, x), where the z-axis represents the range of measurements for a single pixel and the x- and y-axes represent the position of each pixel within the detector. 
+The algorithm implemented in this package corrects artefacts in images produced by a 2D detector by first finding the relationship between detector response and estimated true stimulus intensity. This relationship is then used this to 'reconstruct' an image aquired by the same detector. For this to work, you first need to aquire data that demonstrates the detector response across a range of stimulus intensities. For CT, this would be done by sweeping the detector through the X-ray beam to aquire images across the range of possible intensities. This stimulus-response data should be a 3D array of shape (z, y, x), where the z-axis represents the range of measurements for a single pixel and the x- and y-axes represent the position of each pixel within the detector. 
 
 ### Step 1: Fit
 
-During the 'fit' stage of the callibration process, a linear relationship between detector response and true stimulus intensity is found for every pixel in the detector. If the stimulus beam can be assumed to emmit a smooth signal, we can estimate the true intensity by applying a Gaussian filter to the stimulus response image thereby removing local pixel-to-pixel intensity variations. 
+During the 'fit' stage of the callibration process, a linear relationship between detector response and true stimulus intensity is found for every pixel in the detector. We can estimate the true intensity by applying a Gaussian filter to the stimulus-response image, which removes local pixel-to-pixel intensity variations. 
 
-The video below shows an example of a detector response volume (greyscale) and the resultant linear coefficients (magma LUT) for the array. The volume was produced by passing the detector though an X-ray beam ad the 
-
-[EMBED VIDEO]
+[![fit response](https://youtu.be/sRqZLakDyG4)](https://youtu.be/sRqZLakDyG4)  
+*Example of stimulus response data and linear coefficients produced using* `fit_response`. Animations created using `napari-animation`.
 
 Fitting is done using the `fit_response` function, for which example usage ish shown below. By default, the standard deviation for the Gaussian kernel used to smooth the image is 50 pixels. This can be adjusted using the optional `sigma` argument.
 
@@ -95,6 +105,6 @@ Croton, L.C., Ruben, G., Morgan, K.S., Paganin, D.M. and Kitchen, M.J.,
 
 ## Contribution
 
-[ASK LINDA WHAT TO PUT HERE]
+Community contributions are welcome! If you think of a way to imrpove efficiency or want to help us out with bugs, please reach out to us on the Issues page. Once you've done this, fork the repository and link the issue in your pull request. Contributions will be reviewed by the authors and will have to pass tests on GitHub Actions.  
  
                                                                                         
