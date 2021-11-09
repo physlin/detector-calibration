@@ -30,7 +30,8 @@ The algorithm implemented in this package corrects artefacts in images produced 
 
 During the 'fit' stage of the callibration process, a linear relationship between detector response and true stimulus intensity is found for every pixel in the detector. We can estimate the true intensity by applying a Gaussian filter to the stimulus-response image, which removes local pixel-to-pixel intensity variations. 
 
-[![Watch the video](https://img.youtube.com/vi/nTQUwghvy5Q/default.jpg)](https://youtu.be/sRqZLakDyG4)  
+
+[![Watch the video](https://img.youtube.com/vi/sRqZLakDyG4/default.jpg)](https://youtu.be/sRqZLakDyG4)  
 *Example of stimulus response data and linear coefficients produced using* `fit_response`. Animations created using `napari-animation`.
 
 Fitting is done using the `fit_response` function, for which example usage ish shown below. By default, the standard deviation for the Gaussian kernel used to smooth the image is 50 pixels. This can be adjusted using the optional `sigma` argument.
