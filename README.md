@@ -99,10 +99,12 @@ The following figure shows a reconstructed image both with and without residual 
 
 If you use this software, please cite the following paper. 
 
+Croton, L. C., ... and Kitchen, M.J., 2021. Detector calibration for effective DT ring artefact supressionwith polychromatic X-ray sources. In Press. 
+
 Croton, L.C., Ruben, G., Morgan, K.S., Paganin, D.M. and Kitchen, M.J., 
     2019. Ring artifact suppression in X-ray computed tomography using a 
     simple, pixel-wise response correction. Optics express, 27(10), 
-    pp.14231-14245.
+    pp.14231-14245. https://doi.org/10.1364/OE.27.014231
 
 
 
