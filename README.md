@@ -57,7 +57,7 @@ coefficients = fit_response(volume, dark=dark, save='path/to/which/to/save/coeff
 
 The below is a sample of the relationship between detector response and estimated true intensity for a selection of pixels. This sort of plot can be obtained using the `detectorcal.plot.plot_coefficients(volume, coefficients, n)` function, which will plot graphs displaying the data and fit lines for`n` random pixels. 
 
-[EMBED IMAGE HERE]
+![Calibrations for 9 random pixels](https://github.com/physlin/detector-calibration/blob/finishing-touches/data/some_pixel_claibrations_0.png)
 
 ## Step 2: Correct
 
