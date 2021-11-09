@@ -58,15 +58,15 @@ coefficients = fit_response(volume, dark=dark, save='path/to/which/to/save/coeff
 # P.S.S. If you don't wish to save the coefficients the `save` argument can also be omitted
 ```
 
-The below is a sample of the relationship between detector response and estimated true intensity for a selection of pixels. This sort of plot can be obtained using the `detectorcal.plot.plot_coefficients(volume, coefficients, n)` function, which will plot graphs displaying the data and fit lines for`n` random pixels. 
+The plots below show the calibration for 9 random pixels. These plots can be generated using `detectorcal.plot.plot_coefficients(volume, coefficients, n)`, which will return measured vs true intesity scatter plots and fit lines for`n` random pixels. 
 
 ![Calibrations for 9 random pixels](https://github.com/physlin/detector-calibration/blob/finishing-touches/data/some_pixel_claibrations_0.png)
 
 ## Step 2: Correct
 
-Once the coefficients for the detector are found these can be used to correct data aquired by the detector. The correction applies the linear coefficients to adjust the aquired data. When provided with a flat field image (i.e., mean of flat field [sample free] images aquired with the CT sequence), a the flat field can be used for flat field correction. For this, the flat field image is first smoothed (using the same gaussian smoothing as in step 1), which provides an estimate of the true flat field intesity. This can be used to normalise the corrected image. 
+Once the coefficients for the detector are found, they can be used to correct data aquired by the detector using `correct_image`. If you provide a flat field image (i.e., mean of flat field [sample free] images aquired with the CT sequence), the function will apply flat field correction. For flat field correction, the flat field is first smoothed (using the same gaussian smoothing as in step 1), then used to normalise the corrected image. 
 
-If there is likely to be any substantial changes in the optical system between aquiring the detector response volume and the sample image (e.g., dust on the sensor, etc), these changes can be corrected for by finding the residual differences between the estimate of the true flat field (smoothed) and the corrected flat field (i.e., original flat field corrected using coefficients). These residuals can be removed from the smoothed flat field prior to flat field correction. Because the residuals themselves are prone to noise, removal of all residuals may introduce new artifacts. For this reason, only large (i.e., real) residuals greater than a user defined number of standard deviationsfrom the mean are subtracted (we suggest `sigma = 3`). 
+If there is likely to be any substantial changes in the optical system between aquiring the detector response volume and the sample image (e.g., dust on the sensor, etc), these changes can also be corrected using the flat field. This is done by finding the residual differences between the estimated true flat field (smoothed) and the coefficient-corrected flat field (using coefficients found in step 1). The residuals can be removed from the smoothed flat field prior to flat field correction. Because the residuals themselves are prone to noise, removal of all residuals may introduce new artifacts. For this reason, only large (i.e., real) residuals should be removed. The user can define the number of standard deviations above which residuals will be removed (we suggest `sigma = 3`). By default the `sigma` argument is `None` meaning that the residual correction will not go ahead. 
 
 Correction is performed using the `correct_image` function. Example usage is shown below:
 
