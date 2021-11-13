@@ -90,6 +90,8 @@ def fit_response(
     # initialise a local dask cluster and client
     #cluster, client = intialise_cluster_client()
     client = Client(processes=False)
+    if verbose:
+        print(client.dashboard_link)
     volume = rm_dark(volume, dark, gpu)
     # obtain volume with Gaussian smoothing along x-y planes
     smoothed = gaussian_smooth(volume, sigma=sigma, mode=mode, cval=cval, 
@@ -161,7 +163,10 @@ def gaussian_smooth(
     #as_array = not gpu
     # chunk along the axis along which function should be applied
     _, y, x = volume.shape
-    lazy_volume = da.from_array(volume, chunks=(1, y, x)) 
+    if isinstance(volume, np.ndarray):
+        lazy_volume = da.from_array(volume, chunks=(1, y, x)) 
+    elif isinstance(volume, da.core.Array):
+        lazy_volume = volume
     if gpu:
         from cupyx.scipy.ndimage import gaussian_filter
         #dtype = cp.ndarray
