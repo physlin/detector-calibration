@@ -25,22 +25,26 @@ def plot_pixel_calibrations(
     Parameters
     ----------
     volume: np.ndarray
-        Detector volume to be used for calibration 
+        Detector-response volume to be used for calibration 
+    dark: np.ndarray
+        Default None. Dark image to be subtracted for detector response.
     n_pixels: int
-        Number of random pixels for which to plot the calibration
+        Default 9. Number of random pixels for which to plot the calibration
     save_path: None or str
-        Optional path to which to save the output (probably .png)
+        Default None. Optional path to which to save the output (probably .png)
     show: bool
-        Should matplotlib display the plot? Perhaps this isnt necessary
+        Default True. Should matplotlib display the plot? Perhaps this isnt necessary
         if you are saving the output.
     sigma: scalar
-        Standard deviation for the Gaussian Kernel used for smoothing
+        Default sigma. Standard deviation for the Gaussian Kernel used for smoothing
     cutoff: scalar
-        ##
+        Default 300. Minimum value in smoothed image at which to include 
+        the value in the regression. This is chosen to elminate
+        values that fall outside of the range of linear response.  
     coords: None or list of list
-        List of the form [[y_coord, x_coord], ...]
+        Default None. List of the form [[y_coord, x_coord], ...]
     inch_per_plot: scalar
-        How many inches to add to figure size in each dim for each plot
+        Default 3. How many inches to add to figure size in each dim for each plot
     '''
     if dark is not None:
         volume = volume - dark

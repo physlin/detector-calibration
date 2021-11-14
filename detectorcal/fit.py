@@ -50,30 +50,34 @@ def fit_response(
     volume: np.ndarray
         Array containing the stack of detector responses.
     dark: None or np.ndarray
-        Array containing the dark current image or None.
+        Default None. Array containing the dark current image or None.
     save_path: None or str
-        Path to which the fit coefficients should be saved.
+        Default None. Path to which the fit coefficients should be saved.
         If None, the coefficients will not be saved to disk. 
     sigma: scalar
-        Standard deviation of the Gaussian kernel to be used for smoothing
+        Default 50. Standard deviation of the Gaussian kernel to be used for 
+        smoothing
     mode: str
-        Determines how the input array is extended at the boarder. 
+        Default 'nearest'. Determines how the input array is extended at the
+        boarder. 
     cval: scalar
-        Value with which to pad edges when mode 'constant' is used.
+        Default 0.0. Value with which to pad edges when mode 'constant' is 
+        used.
     truncate: float
-        truncate filter at this many standard deviations.
+        Default 4.0. truncate filter at this many standard deviations.
     gpu: bool
-        Will gpu acceleration be required (or possible)? If unspecified, this will
-        be determined by whether the cupy package is installed (as it will be if
-        detectorcal has been installed with the .[gpu] option)
+        Default determined by whether GPU version is installed (with pip 
+        install detectorcal[gpu]). Will gpu acceleration be required 
+        (or possible)? 
     verbose: bool
-        Should messages be printed to the console?
-    hpc: bool
-        Will the cluster be a HPC cluster?
+        Default False. Should messages be printed to the console? Will print a
+        link to dask dashboard - this allows you to watch the computation across
+        the workers. 
     cutoff: scalar
-        Minimum value in smoothed image at which to include 
+        Default 300. Minimum value in smoothed image at which to include 
         the value in the regression. This is chosen to elminate
-        values that fall outside of the range of linear response.  
+        values that fall outside of the range of linear response. Value choice
+        depends on data type and range (e.g., 300 for 12 bit image). 
 
     Returns
     -------
@@ -159,6 +163,11 @@ def gaussian_smooth(
         Will gpu acceleration be required (or possible)?
     verbose: bool
         Should messages be printed to the console?
+
+    Returns
+    -------
+    smoothed: np.ndarray
+        Smoothed version of the input volume. 
     '''
     #as_array = not gpu
     # chunk along the axis along which function should be applied
@@ -220,12 +229,17 @@ def cupy_to_numpy(array):
 
 @jit(forceobj=True)
 def parallel_fit(fit, volume, smoothed, cutoff):
+    '''
+    Apply linear regression to each pixel. This is done using a
+    numba accelerated nested for loop. 
+    '''
     for j in range(volume.shape[1]):
         for i in range(volume.shape[2]):
             points = np.where(smoothed[:,j,i]>cutoff)[0]
             fit[:,j,i] = np.linalg.lstsq(volume[points,j,i].reshape(-1,1), 
                                         smoothed[points,j,i], rcond=None)[0][0]
     return fit[0, ...]
+
 
 # --------------------
 # Sequential Functions
@@ -237,7 +251,10 @@ def sequential_gauss(
     mode='nearest',
     cval=0.0, 
     truncate=4.0,
-):
+    ):
+    '''
+    Apply Gaussian smoothing to image planes in sequence.
+    '''
     from scipy.ndimage.filters import gaussian_filter
     t = time()
     out = np.zeros_like(volume)
@@ -249,6 +266,9 @@ def sequential_gauss(
 
 
 def sequential_fit(volume, smoothed, cutoff):
+    '''
+    Apply linear regression to pixels sequentially.
+    '''
     t = time()
     fit = np.zeros(shape=(1,volume.shape[1],volume.shape[2]))
 
@@ -275,15 +295,30 @@ def fit_pixel(
     i
     ):
     '''
-    Least squares regression for a single pixel
+    Least squares regression for a single pixel. 
+
     Parameters
     ----------
     volume: np.ndarray
+        The detector-response volume. 
     smoothed: np.ndarray
+        The detector-response volume once Gaussian smoothed across xy. 
     cutoff: scalar
+        Minimum value in smoothed image at which to include 
+        the value in the regression. This is chosen to elminate
+        values that fall outside of the range of linear response.  
     pair: tuple of int 
         Of the form (j, i), where j and i are the 
         y and x indices respectively.
+
+    Returns
+    -------
+    pixel_fit: scalar
+        Linear coefficient for the pixel.
+    i: int
+        index of the pixel in flattened corrdinates
+        (i.e., raveled along x-y plane).
+
     '''
     points = np.where(smoothed[:,i]>cutoff)[0]
     measured = volume[points, i].reshape(-1,1) 

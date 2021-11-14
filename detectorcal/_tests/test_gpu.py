@@ -37,12 +37,36 @@ def test_fit_save_methods_GPU(save_dir=SAVE_DIR):
     rmtree(save_zarr)
 
 
-def test_correction_with_gpu():
+def test_correction_NR_ND_with_gpu():
     ct = np.random.random((10, 100, 100))
     ff = np.random.random((100, 100))
     dk = np.random.random((100, 100))
     cf = np.random.random((100, 100))
     out = correct_image(ct, cf, dark=dk, flat=ff, gpu=True)
+
+
+def test_correction_R_ND_with_gpu():
+    ct = np.random.random((10, 100, 100))
+    ff = np.random.random((100, 100))
+    dk = np.random.random((100, 100))
+    cf = np.random.random((100, 100))
+    out = correct_image(ct, cf, dark=dk, flat=ff, gpu=True, sigma=3.)
+
+
+def test_correction_NR_D_with_gpu():
+    ct = np.random.random((10, 100, 100))
+    ff = np.random.random((100, 100))
+    dk = np.random.random((100, 100))
+    cf = np.random.random((100, 100))
+    out = correct_image(ct, cf, dark=dk, flat=ff, gpu=True, use_dask=True)
+
+
+def test_correction_R_D_with_gpu():
+    ct = np.random.random((10, 100, 100))
+    ff = np.random.random((100, 100))
+    dk = np.random.random((100, 100))
+    cf = np.random.random((100, 100))
+    out = correct_image(ct, cf, dark=dk, flat=ff, gpu=True, sigma=3., use_dask=True)
 
 
 def test_correct_save_methods_gpu(save_dir=SAVE_DIR):

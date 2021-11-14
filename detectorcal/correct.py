@@ -72,6 +72,11 @@ def correct_image(
         to accelerate this?
     verbose: bool
         Default False. Should descriptive print outs be written to console. 
+
+    Returns
+    -------
+    corrected: np.array
+        Coefficient-corrected CT volume. 
         
     References
     ----------
@@ -155,6 +160,11 @@ def dask_assisted_correction(
         Can NVIDIA GPUs be used to accelerate this?
     verbose: bool
         Should descriptive print outs be written to console. 
+
+    Returns
+    -------
+    corrected: np.array
+        Coefficient-corrected CT volume. 
     '''
     t = time()
     client = Client(processes=False)
@@ -164,17 +174,18 @@ def dask_assisted_correction(
     chunks = coefficients.shape
     # dask conversions
     ct_volume = da.from_array(ct_volume)
-    coefficients = da.from_array(coefficients, chunks=chunks)
+    coefficients = da.from_array(coefficients)
     if dark is not None:
-        dark = da.from_array(dark, chunks=chunks)
+        dark = da.from_array(dark)
     if use_flat:
         # get the smoothed flat before converting to dask
         flat_ed = np.expand_dims(flat, 0)
         flat_smoothed = gaussian_smooth(flat_ed, smooth_radius, mode, cval, 
-                                        truncate, gpu, verbose=True)
-        flat = da.from_array(flat, chunks=chunks)
+                                        truncate, gpu, verbose=verbose)
+        del flat_ed
+        flat = da.from_array(flat)
         flat_smoothed = flat_smoothed[0, :, :]
-        flat_smoothed = da.from_array(flat_smoothed, chunks=chunks)
+        flat_smoothed = da.from_array(flat_smoothed)
     # gpu cupy if necessary
     if gpu:
         ct_volume = ct_volume.map_blocks(cp.array)
@@ -200,7 +211,7 @@ def dask_assisted_correction(
         # throughout the CT are adressed (otherwise --> extra rings)
         stds = da.std(residuals) * sigma
         if gpu:
-            abs_residuals = residuals.map_blocks(cp.abs)
+            abs_residuals = residuals.map_blocks(cp.abs, dtype=cp.ndarray)
         else:
             abs_residuals = residuals.map_blocks(np.abs)
         residuals[abs_residuals < stds] = 0.
@@ -229,7 +240,11 @@ def dask_free_correction(
     coeffs, 
     dark, 
     flat, 
-    sigma=3., 
+    sigma=None, 
+    smooth_radius=50,
+    mode='nearest',
+    cval=0.0, 
+    truncate=4.0,
     gpu=False,
     verbose=False
     ):
@@ -264,15 +279,23 @@ def dask_free_correction(
         Can NVIDIA GPUs be used to accelerate this?
     verbose: bool
         Should descriptive print outs be written to console. 
+    
+    Returns
+    -------
+    corrected: np.array
+        Coefficient-corrected CT volume. 
     '''
     t = time()
     if dark is not None:
         ct_vol = ct_vol - dark
     if gpu:
         ct_vol = cp.array(ct_vol)
+        coeffs = cp.array(coeffs)
     corr = np.zeros(shape=coeffs.shape)
     if flat is not None:
-        flat_smoothed = gaussian_filter(flat, 50, order=0, output=None, mode="nearest", cval=0.0, truncate=4.0)
+        flat_ed = np.expand_dims(flat, 0)
+        flat_smoothed = gaussian_smooth(flat_ed, smooth_radius, mode, cval, 
+                                        truncate, gpu, verbose=verbose)
         if gpu:
             flat = cp.array(flat)
             flat_smoothed = cp.array(flat_smoothed)
@@ -282,9 +305,11 @@ def dask_free_correction(
         corr = corr / flat_smoothed
     elif flat is not None:
         flat_corr = flat * coeffs
+        del coeffs
         residuals = flat_smoothed - flat_corr
         residuals[np.abs(residuals)<(np.std(residuals)*sigma)] = 0.
         flat = flat_smoothed - residuals
+        del residuals
         corr = corr / flat
     if gpu:
         corr = cp.asnumpy(corr)
