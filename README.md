@@ -95,17 +95,13 @@ The following figure shows a reconstructed image both with and without residual 
 [EMBED IMAGE]
 
 ### Large Arrays
-When the input volume is too large, the former code will raise a memory error. If this is the case, computation can still be completed by setting the `use_dask` flag as `True`. Using `dask` as a backend, allows computations to be carried out and written to disk without ever exceeding RAM. If the array is too large to read in as a numpy array, please use `dask` or `dask_image`. When you input a dask array, `use_dask` will automatically be infered as `True`. When the resultant corrected image is expected to be bigger than RAM, please save as a zarr or hdf5, as we do not currently support big tiffs. 
+When the input volume is too large, the former code will raise a memory error. If this is the case, computation can still be completed by setting the `use_dask` flag as `True`. Using `dask` as a backend, this allows computations to be carried out and written to disk without ever exceeding RAM. If the array is too large to read in as a numpy array, please use `dask` or `dask_image`. When you input a dask array, the `use_dask` flag will automatically be set to `True`. Also note that When the corrected image is expected to be bigger-than-RAM, the file should be saved as a zarr or hdf5, as we do not currently support big tiffs. 
 
 ```Python
 from dask_image.imread import imread
-
 image = imread('path/to/image')
-dark = imread('path/to/dark/field') # shape = (y, x)
-flat = imread('path/to/flat/field') # shape = (y, x)
 
 # save path as zarr or hdf5
-
 save_path = 'path/to/which/to/save/corrected.zarr'
 
 # obtain the corrected image
