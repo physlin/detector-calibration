@@ -75,7 +75,7 @@ def correct_image(
 
     Returns
     -------
-    corrected: np.array
+    corrected: np.array or da.core.Array
         Coefficient-corrected CT volume. 
         
     References
@@ -96,7 +96,10 @@ def correct_image(
     save = save_path is not None
     if save:
         file_type = Path(save_path).suffix
-        lazy_corr = da.from_array(corrected)
+        if use_dask:
+            lazy_corr = corrected
+        else:
+            lazy_corr = da.from_array(corrected)
         if file_type == '.h5' or file_type == '.hdf5':
             lazy_corr.to_hdf5(save_path, '/data')
         if file_type == '.zar' or file_type == '.zarr':
@@ -126,6 +129,7 @@ def dask_assisted_correction(
     truncate=4.0,
     gpu=False,
     verbose=False,
+
     ):
     '''
     Correction using dask. This is executed in detectorcal.correct_image 
@@ -163,29 +167,26 @@ def dask_assisted_correction(
 
     Returns
     -------
-    corrected: np.array
+    corrected: da.core.Array
         Coefficient-corrected CT volume. 
     '''
     t = time()
-    client = Client(processes=False)
-    if verbose:
-        print(client.dashboard_link)
     use_flat = flat is not None
-    chunks = coefficients.shape
+    chunksize = coefficients.shape
     # dask conversions
-    ct_volume = da.from_array(ct_volume)
-    coefficients = da.from_array(coefficients)
+    ct_volume = da.from_array(ct_volume, chunks=(1,) + chunksize)
+    coefficients = da.from_array(coefficients, chunks=chunksize)
     if dark is not None:
-        dark = da.from_array(dark)
+        dark = da.from_array(dark, chunks=chunksize)
     if use_flat:
         # get the smoothed flat before converting to dask
         flat_ed = np.expand_dims(flat, 0)
         flat_smoothed = gaussian_smooth(flat_ed, smooth_radius, mode, cval, 
                                         truncate, gpu, verbose=verbose)
         del flat_ed
-        flat = da.from_array(flat)
+        flat = da.from_array(flat, chunks=chunksize)
         flat_smoothed = flat_smoothed[0, :, :]
-        flat_smoothed = da.from_array(flat_smoothed)
+        flat_smoothed = da.from_array(flat_smoothed, chunks=chunksize)
     # gpu cupy if necessary
     if gpu:
         ct_volume = ct_volume.map_blocks(cp.array)
@@ -219,9 +220,6 @@ def dask_assisted_correction(
         corr = corr / flat
     if gpu:
         corr = corr.map_blocks(cupy_to_numpy)
-    # compute
-    corr = corr.compute()
-    client.close()
     if verbose:
         print(f'Corrected volume in {time() - t} seconds')
     return corr
@@ -323,21 +321,22 @@ if __name__ == '__main__':
     from skimage.io import imread
     from scipy.ndimage.filters import gaussian_filter
     from time import time
+    # TODO: change to use aicsimageio read_dask or whatever it's called
     from napari_bioformats import read_bioformats
 
 
     # data
     ct_vol = read_bioformats('/home/abigail/GitRepos/detector-calibration/untracked/phantom_320ms_30kV_23W_sod50_sid150_1_MMStack_Default.ome.tif')[0][0]
-    ct_vol = np.array(ct_vol)[::5]
+    ct_vol = np.array(ct_vol)
     coeffs = imread('/home/abigail/GitRepos/detector-calibration/untracked/full_coefficients_gpu.tif')
     dark = imread('/home/abigail/GitRepos/detector-calibration/untracked/darks_320ms_avg.tif')
     flat = imread('/home/abigail/GitRepos/detector-calibration/untracked/flats_start_320ms_30kV_23W_avg.tif')
     
     # Resid, Original
-    t = time()
-    save_path = '/home/abigail/GitRepos/detector-calibration/untracked/corrected_resid_orig.zarr'
-    _ = correct_image(ct_vol, coeffs, dark, flat, save_path, sigma=None, gpu=False, verbose=True)
-    print(f'Original correction with residual in {time() - t} s')
+    #t = time()
+    #save_path = '/home/abigail/GitRepos/detector-calibration/untracked/corrected_resid_orig.zarr'
+    #_ = correct_image(ct_vol, coeffs, dark, flat, save_path, sigma=None, gpu=False, verbose=True)
+    #print(f'Original correction with residual in {time() - t} s')
 
     # No resid, No GPU
     t = time()

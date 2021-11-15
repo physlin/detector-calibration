@@ -178,10 +178,10 @@ def gaussian_smooth(
         lazy_volume = volume
     if gpu:
         from cupyx.scipy.ndimage import gaussian_filter
-        #dtype = cp.ndarray
+        dtype = cp.ndarray
     else:
         from scipy.ndimage.filters import gaussian_filter
-    dtype = np.ndarray
+        dtype = np.ndarray
     order=0 # derivative order for gaussian kernel - i.e., normal gaussian
     t = time()
     if verbose:
@@ -204,7 +204,7 @@ def gaussian_smooth(
         #return sm
     lazy_smoothed = lazy_volume.map_blocks(gaussian_filter, dtype=dtype, **gaus_kwargs)
     if gpu:
-        lazy_smoothed = lazy_smoothed.map_blocks(cupy_to_numpy)
+        lazy_smoothed = lazy_smoothed.map_blocks(cupy_to_numpy, dtype=np.ndarray)
     # when the compute is called, as long as a client is active
     #   the dask scheduler will parallelise the work across workers/threads
     smoothed = lazy_smoothed.compute()
@@ -307,9 +307,9 @@ def fit_pixel(
         Minimum value in smoothed image at which to include 
         the value in the regression. This is chosen to elminate
         values that fall outside of the range of linear response.  
-    pair: tuple of int 
-        Of the form (j, i), where j and i are the 
-        y and x indices respectively.
+    i: int 
+        index of the pixel in flattened corrdinates
+        (i.e., raveled along x-y plane).
 
     Returns
     -------
