@@ -49,7 +49,7 @@ jobs:
       
       - name: Pytest
         run: |
-          export MPLBACKEND="ps"
+          #export MPLBACKEND="ps"
           python -c 'import matplotlib.pyplot as plt; print(plt.get_backend())'
           pytest --cov-report term-missing --cov .
           #coveralls
