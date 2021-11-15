@@ -5,7 +5,6 @@ import numpy as np
 from tifffile import TiffWriter
 from pathlib import Path
 import dask.array as da
-from dask.distributed import Client
 from time import time
 # determine cupy will be imported and used
 try:
@@ -37,8 +36,9 @@ def correct_image(
 
     Parameters
     ----------
-    ct_volume: ndarray like
-        CT image volume to be corrected. (n, y, x)
+    ct_volume: np.ndarray or dask.array.Array
+        CT image volume to be corrected. Note that if a dask array is 
+        inputted, the use_dask flag will be inffered as True. (n, y, x)
     coefficients: ndarray like
         Linear coefficients for the detector. (y, x)
     dark: ndarray like
@@ -48,7 +48,9 @@ def correct_image(
     sigma: None or scalar
         Number of standard deviations
     save_path: None or str
-        Default None. Optional path to which to save output.
+        Default None. Optional path to which to save output.Please save as
+        a tiff, hdf5, or zarr. If the output is expected to be larger than 
+        RAM, please save as zarr or hdf5.
     use_dask: bool
         Defaut False. Should dask be used to support computation? Dask manages
         memory to allow for computation on larger images. Only set this to
@@ -75,7 +77,7 @@ def correct_image(
 
     Returns
     -------
-    corrected: np.array or da.core.Array
+    corrected: np.array or da.array.Array
         Coefficient-corrected CT volume. 
         
     References
@@ -85,6 +87,8 @@ def correct_image(
         simple, pixel-wise response correction. Optics express, 27(10), 
         pp.14231-14245.
     '''
+    if isinstance(ct_volume, da.Array):
+        use_dask = True
     if use_dask:
         corrected = dask_assisted_correction(ct_volume, coefficients, dark=dark,flat=flat, 
                                              sigma=sigma, smooth_radius=smooth_radius, 
@@ -97,8 +101,11 @@ def correct_image(
     if save:
         file_type = Path(save_path).suffix
         if use_dask:
+            # corrected is a dask array that has not yet been computed. 
+            # Computations are carried out when writing to disk.
             lazy_corr = corrected
         else:
+            # corrected is a numpy array
             lazy_corr = da.from_array(corrected)
         if file_type == '.h5' or file_type == '.hdf5':
             lazy_corr.to_hdf5(save_path, '/data')
@@ -174,7 +181,9 @@ def dask_assisted_correction(
     use_flat = flat is not None
     chunksize = coefficients.shape
     # dask conversions
-    ct_volume = da.from_array(ct_volume, chunks=(1,) + chunksize)
+    if isinstance(ct_volume, np.ndarray): # convert if a numpy array
+        ct_volume = da.from_array(ct_volume, chunks=(1,) + chunksize)
+    # otherwise it is assumed that ct_volume is a dask array
     coefficients = da.from_array(coefficients, chunks=chunksize)
     if dark is not None:
         dark = da.from_array(dark, chunks=chunksize)
