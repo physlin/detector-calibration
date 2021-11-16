@@ -90,9 +90,9 @@ resid_corrected = correct_image(image, coefficients, dark=dark, flat=flat, sigma
 
 ```
 
-The following figure shows a reconstructed image both with and without residual correction. 
+![correction](https://github.com/physlin/detector-calibration/blob/finishing-touches/data/detectorcal-correct.png)
 
-[EMBED IMAGE]
+A reconstructed image both with and without correction. Figure modified from Croton et al. (2019).
 
 ### Large Arrays
 When the input volume is too large, the former code will raise a memory error. If this is the case, computation can still be completed by setting the `use_dask` flag as `True`. Using `dask` as a backend, this allows computations to be carried out and written to disk without ever exceeding RAM. If the array is too large to read in as a numpy array, please use `dask` or `dask_image`. When you input a dask array, the `use_dask` flag will automatically be set to `True`. Also note that when the corrected image is expected to be bigger-than-RAM, the file should be saved as a zarr or hdf5, as we do not currently support big tiffs. 
