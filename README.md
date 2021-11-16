@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/detectorcal.svg?color=green)](https://pypi.org/project/detectorcal)
 
-Documentation can be found [here](physlin.github.io). Pixel-by-pixel detector calibration for quantitative direct imaging and suppression of CT ring artefacts 
+Detectorcal is a pixel-by-pixel detector calibration for quantitative direct imaging and suppression of CT ring artefacts. Detectorcal's documentation can be found [here](physlin.github.io). 
 
 
 ## Installation 
