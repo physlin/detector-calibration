@@ -1,21 +1,22 @@
 
 import numpy as np
 import dask.array as da
-from dask.distributed import Client, LocalCluster
+from dask.distributed import Client, LocalCluster, as_completed
+from numba import jit
 from time import time
 from toolz import curry
 from tifffile import TiffWriter
-from scipy.ndimage.filters import gaussian_filter
-from multiprocessing import Pool, cpu_count
 from pathlib import Path
 from shutil import rmtree
 # determine cupy will be imported and used
-#try:
- #   import cupy as cp
-  #  USE_GPU = True
-#except ImportError:
- #   USE_GPU = False
-#USE_GPU = True
+try:
+    import cupy as cp
+    USE_GPU = True
+except ImportError:
+    USE_GPU = False
+
+
+
 # -------------
 # Fit Beamsweep
 # -------------
@@ -31,7 +32,6 @@ def fit_response(
     cutoff=300,
     gpu=False,
     verbose=False,
-    n_processes=None
     ):
     '''
     For each pixel in the detector, fit a linear model predicting the 
@@ -50,30 +50,35 @@ def fit_response(
     volume: np.ndarray
         Array containing the stack of detector responses.
     dark: None or np.ndarray
-        Array containing the dark current image or None.
+        Default None. Array containing the dark current image or None.
     save_path: None or str
-        Path to which the fit coefficients should be saved.
-        If None, the coefficients will not be saved to disk. 
+        Default None. Path to which the fit coefficients should be saved.
+        If None, the coefficients will not be saved to disk. Please save as
+        a tiff, hdf5, or zarr.
     sigma: scalar
-        Standard deviation of the Gaussian kernel to be used for smoothing
+        Default 50. Standard deviation of the Gaussian kernel to be used for 
+        smoothing
     mode: str
-        Determines how the input array is extended at the boarder. 
+        Default 'nearest'. Determines how the input array is extended at the
+        boarder. 
     cval: scalar
-        Value with which to pad edges when mode 'constant' is used.
+        Default 0.0. Value with which to pad edges when mode 'constant' is 
+        used.
     truncate: float
-        truncate filter at this many standard deviations.
+        Default 4.0. truncate filter at this many standard deviations.
     gpu: bool
-        Will gpu acceleration be required (or possible)? If unspecified, this will
-        be determined by whether the cupy package is installed (as it will be if
-        detectorcal has been installed with the .[gpu] option)
+        Default determined by whether GPU version is installed (with pip 
+        install detectorcal[gpu]). Will gpu acceleration be required 
+        (or possible)? 
     verbose: bool
-        Should messages be printed to the console?
-    hpc: bool
-        Will the cluster be a HPC cluster?
+        Default False. Should messages be printed to the console? Will print a
+        link to dask dashboard - this allows you to watch the computation across
+        the workers. 
     cutoff: scalar
-        Minimum value in smoothed image at which to include 
+        Default 300. Minimum value in smoothed image at which to include 
         the value in the regression. This is chosen to elminate
-        values that fall outside of the range of linear response.  
+        values that fall outside of the range of linear response. Value choice
+        depends on data type and range (e.g., 300 for 12 bit image). 
 
     Returns
     -------
@@ -87,36 +92,22 @@ def fit_response(
         simple, pixel-wise response correction. Optics express, 27(10), 
         pp.14231-14245.
     '''
-    if gpu:
-        try:
-            import cupy as cp
-            volume = cp.array(volume)
-            dark = cp.array(dark)
-        except ImportError:
-            raise ImportError('Please install cupy into your local environment to use GPU acceleration')
     # initialise a local dask cluster and client
-    cluster, client = intialise_cluster_client()
-    if dark is not None:
-        # remove the dark current
-        volume = volume - dark
+    #cluster, client = intialise_cluster_client()
+    client = Client(processes=False)
+    if verbose:
+        print(client.dashboard_link)
+    volume = rm_dark(volume, dark, gpu)
     # obtain volume with Gaussian smoothing along x-y planes
     smoothed = gaussian_smooth(volume, sigma=sigma, mode=mode, cval=cval, 
                                truncate=truncate, gpu=gpu, verbose=verbose)
-    client.close()
-    cluster.close()
-    # new client
-    #_, client = intialise_cluster_client()
-    # use smoothed volume to fit values
-    if gpu:
-        smoothed = smoothed.get()
-        volume = volume.get()
     #fit = sequential_fit(volume, smoothed, cutoff)
-    fit = polyfit_deg_1(client, volume, smoothed, cutoff, verbose, n_processes)
+    fit = np.zeros((1, volume.shape[1], volume.shape[2]))
+    client.close()
+    #cluster.close()
+    fit = parallel_fit(fit, volume, smoothed, cutoff)
     # save coefficients if a path is provided
     if save_path is not None:
-        if gpu:
-            if isinstance(fit, cp._core.core.ndarray):
-                fit = fit.get()
         file_type = Path(save_path).suffix
         lazy_fit = da.from_array(fit)
         if file_type == '.h5' or file_type == '.hdf5':
@@ -126,29 +117,14 @@ def fit_response(
         if file_type == '.tif' or file_type == '.tiff':
             with TiffWriter(save_path) as tiff:
                 tiff.save(fit)
-    client.close()
+    print(fit.shape)
     return fit
 
 
-# -------------
-# Dask Specific
-# -------------
-
-def intialise_cluster_client():
-    '''
-    Parameters
-    ----------
-    hpc: bool
-        Will the cluster be a HPC cluster?
-
-    TODO: add hpc compatibility if there is time
-    '''
-    cluster = LocalCluster(processes=False)
-    client = Client(cluster)
-    #print('Dask dashboard can be found at the following link')
-    #print(client.dashboard_link)
-    return cluster, client
-
+def rm_dark(volume, dark, gpu):
+    if dark is not None:
+        volume = volume - dark
+    return volume
 
 # ------------------
 # Gaussian Smoothing
@@ -156,7 +132,7 @@ def intialise_cluster_client():
 
 
 def gaussian_smooth(
-    volume: np.ndarray, 
+    volume: da.Array, 
     sigma=50, 
     mode='nearest',
     cval=0.0, 
@@ -188,9 +164,20 @@ def gaussian_smooth(
         Will gpu acceleration be required (or possible)?
     verbose: bool
         Should messages be printed to the console?
+
+    Returns
+    -------
+    smoothed: np.ndarray
+        Smoothed version of the input volume. 
     '''
+    #as_array = not gpu
+    # chunk along the axis along which function should be applied
+    _, y, x = volume.shape
+    if isinstance(volume, np.ndarray):
+        lazy_volume = da.from_array(volume, chunks=(1, y, x)) 
+    elif isinstance(volume, da.core.Array):
+        lazy_volume = volume
     if gpu:
-        import cupy as cp
         from cupyx.scipy.ndimage import gaussian_filter
         dtype = cp.ndarray
     else:
@@ -207,109 +194,57 @@ def gaussian_smooth(
         'cval' : cval,
         'truncate' : truncate
     }
-    y, x = volume.shape[1], volume.shape[2]
-    # chunk along the axis along which function should be applied
-    as_array = not gpu
-    lazy_volume = da.from_array(volume, chunks=(1, y, x), asarray=as_array) 
-    #if gpu:
-        #lazy_volume = lazy_volume.map_blocks(cp.asarray)
-    # when the function is called it will be applied separeatley 
-    #    to each slice in z. I checked that this is true on dummy data
+    if gpu:
+        lazy_volume = lazy_volume.map_blocks(cp.array)
+    #def inner_GF(array):
+     #   if gpu:
+      #      array = cp.array(array)
+       # sm = gaussian_filter(array, sigma=sigma, order=order, mode=mode, cval=cval, truncate=truncate)
+        #if gpu:
+        #    sm = sm.get()
+        #return sm
     lazy_smoothed = lazy_volume.map_blocks(gaussian_filter, dtype=dtype, **gaus_kwargs)
+    if gpu:
+        lazy_smoothed = lazy_smoothed.map_blocks(cupy_to_numpy, dtype=np.ndarray)
     # when the compute is called, as long as a client is active
     #   the dask scheduler will parallelise the work across workers/threads
     smoothed = lazy_smoothed.compute()
+    #import napari
+    #v = napari.view_image(smoothed)
+    #v.add_image(volume)
+    #napari.run()
     if verbose:
-        m = f'Gaussian smoothing of stack of shape {volume.shape}'
+        m = f'Gaussian smoothing of stack of shape {lazy_volume.shape}'
         m = m + f' completed in {time() - t} seconds'
         print(m)
     return smoothed
+
+
+def cupy_to_numpy(array):
+    return cp.asnumpy(array)
 
 
 # -------
 # Polyfit
 # -------
 
-def polyfit_deg_1(
-    client, 
-    volume, 
-    smoothed, 
-    cutoff, 
-    verbose, 
-    n_processes
-    ):
+@jit(forceobj=True)
+def parallel_fit(fit, volume, smoothed, cutoff):
     '''
-    Linear fit for every pixel in the detector. 
-    Code is parallelised via dask client.  
-
-    Parameters
-    ----------
-    client: dask.distributed.Client
-    volume: np.ndarray
-    smoothed: np.ndarray
-    cutoff: scalar
+    Apply linear regression to each pixel. This is done using a
+    numba accelerated nested for loop. 
     '''
-    t = time()
-    z, y, x = tuple(volume.shape)
-    if verbose:
-        print('Fitting volume... ')
-    # Initialise fit array
-    fit = np.zeros(shape=(y,x)).ravel()
-    volume = volume.reshape(z, y * x)
-    smoothed = smoothed.reshape(z, y * x)
-    # get the coordinates of each pixel to be fitted
-    #y, x = range(volume.shape[1]), range(volume.shape[2])
-    #pairs = [p for p in product(y, x)]
-    idxs = list(range(len(fit)))
-    c_fit_pixel = curry(fit_pixel)
-    c_fit_pixel = c_fit_pixel(volume, smoothed, cutoff)
-    pf, i = c_fit_pixel(idxs[0])
-    if n_processes is None:
-        n_processes = cpu_count()
-    with Pool(n_processes) as p:
-        result = p.map(c_fit_pixel, idxs)
-    for pf, i in result:
-        fit[i] = pf
-    #f = client.map(c_fit_pixel, idxs)
-    #counter = 0
-    #for future in as_completed(f):
-     #   pixel_fit, i = future.result()
-      #  fit[i] = pixel_fit
-       # if counter % 500 == 499 or counter == 1:
-        #    print(i, pixel_fit)
-       # counter += 1
-    if verbose:
-        m = f'Linear fit completed in {time() - t} seconds'
-        print(m)
-    fit = fit.reshape(y, x)
-    return fit
+    for j in range(volume.shape[1]):
+        for i in range(volume.shape[2]):
+            points = np.where(smoothed[:,j,i]>cutoff)[0]
+            fit[:,j,i] = np.linalg.lstsq(volume[points,j,i].reshape(-1,1), 
+                                        smoothed[points,j,i], rcond=None)[0][0]
+    return fit[0, ...]
 
 
-def fit_pixel(
-    volume, 
-    smoothed,
-    cutoff, 
-    i
-    ):
-    '''
-    Least squares regression for a single pixel
-
-    Parameters
-    ----------
-    volume: np.ndarray
-    smoothed: np.ndarray
-    cutoff: scalar
-    pair: tuple of int 
-        Of the form (j, i), where j and i are the 
-        y and x indices respectively.
-    '''
-    points = np.where(smoothed[:,i]>cutoff)[0]
-    measured = volume[points, i].reshape(-1,1) 
-    expected = smoothed[points, i]
-    pixel_fit = np.linalg.lstsq(measured, expected, rcond=None)[0][0]
-    return pixel_fit, i
-
-
+# --------------------
+# Sequential Functions
+# --------------------
 
 def sequential_gauss(
     volume: np.ndarray, 
@@ -317,15 +252,24 @@ def sequential_gauss(
     mode='nearest',
     cval=0.0, 
     truncate=4.0,
-):
+    ):
+    '''
+    Apply Gaussian smoothing to image planes in sequence.
+    '''
+    from scipy.ndimage.filters import gaussian_filter
+    t = time()
     out = np.zeros_like(volume)
     for i in range(volume.shape[0]):
         v = gaussian_filter(volume[i, ...], sigma, 0, None, mode, cval, truncate)
         out[i, ...] = v
+    print(f'Smoothed volume in {time() - t} seconds')
     return out
 
 
 def sequential_fit(volume, smoothed, cutoff):
+    '''
+    Apply linear regression to pixels sequentially.
+    '''
     t = time()
     fit = np.zeros(shape=(1,volume.shape[1],volume.shape[2]))
 
@@ -341,17 +285,81 @@ def sequential_fit(volume, smoothed, cutoff):
     return fit[0, ...]
 
 
+# -------------------
+# Per Pixel for Plots
+# -------------------
+
+def fit_pixel(
+    volume, 
+    smoothed,
+    cutoff, 
+    i
+    ):
+    '''
+    Least squares regression for a single pixel. 
+
+    Parameters
+    ----------
+    volume: np.ndarray
+        The detector-response volume. 
+    smoothed: np.ndarray
+        The detector-response volume once Gaussian smoothed across xy. 
+    cutoff: scalar
+        Minimum value in smoothed image at which to include 
+        the value in the regression. This is chosen to elminate
+        values that fall outside of the range of linear response.  
+    i: int 
+        index of the pixel in flattened corrdinates
+        (i.e., raveled along x-y plane).
+
+    Returns
+    -------
+    pixel_fit: scalar
+        Linear coefficient for the pixel.
+    i: int
+        index of the pixel in flattened corrdinates
+        (i.e., raveled along x-y plane).
+
+    '''
+    points = np.where(smoothed[:,i]>cutoff)[0]
+    measured = volume[points, i].reshape(-1,1) 
+    expected = smoothed[points, i]
+    pixel_fit = np.linalg.lstsq(measured, expected, rcond=None)[0][0]
+    return pixel_fit, i
+
+
 
 if __name__ == '__main__':
-    bs_path = '/home/abigail/GitRepos/detector-calibration/data/detectorcaleg_stp4_200-500_500-800_beamsweep.tif'
-    d_path = '/home/abigail/GitRepos/detector-calibration/data/detectorcaleg_stp4_200-500_500-800_dark.tif'
-    out_path = '/home/abigail/GitRepos/detector-calibration/untracked/detectorcaleg_stp4_200-500_500-800_coeff_dkrm_gpu.tif'
-    from tifffile import imread
-    bs = imread(bs_path)
-    dark = imread(d_path)
-    fit = fit_response(bs, dark, save=out_path, gpu=True)
-    import napari
-    v = napari.view_image(fit)
-    napari.run()
+    import os
+    CURRENT_PATH = Path(__file__).parent.resolve()
+    SRC_PATH = CURRENT_PATH.parents[0]
+    BS_DATA = str(SRC_PATH / 'data/detectorcaleg_stp4_200-500_500-800_beamsweep.tif')
+    DARK_DATA = str(SRC_PATH / 'data/detectorcaleg_stp4_200-500_500-800_dark.tif')
+    SAVE_DIR = str(SRC_PATH / 'untracked')
 
+    BS_DATA = '/home/abigail/GitRepos/detector-calibration/untracked/beam_sweep_320ms_30kV_23Wmax_sod50_sid150_1_MMStack_Default.ome.tif'
+    DARK_DATA = '/home/abigail/GitRepos/detector-calibration/untracked/darks_320ms_avg.tif'
+    
+    from skimage import io
+    bs = io.imread(BS_DATA)
+    dk = io.imread(DARK_DATA)
+
+    t = time()
+    save_path = os.path.join(SAVE_DIR, 'full_coefficients_no_gpu.tif')
+    _ = fit_response(bs, dk, gpu=False, verbose=True, save_path=save_path)
+    print(f'Non-gpu time: {time() - t}')
+
+    t = time()
+    save_path = os.path.join(SAVE_DIR, 'full_coefficients_gpu.tif')
+    _ = fit_response(bs, dk, gpu=True, verbose=True, save_path=save_path)
+    print(f'Gpu time: {time() - t}')
+
+    t = time()
+    bs = bs - dk
+    sm = sequential_gauss(bs)
+    _ = sequential_fit(bs, sm, cutoff=300)
+    save_path = os.path.join(SAVE_DIR, 'full_coefficients_linear.tif')
+    with TiffWriter(save_path) as tiff:
+        tiff.save(_)
+    print(f'Sequential time: {time() - t}')
 

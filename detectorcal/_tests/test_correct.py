@@ -26,15 +26,29 @@ coef = io.imread(COEF_DATA)
 
 SAVE_DIR = SRC_PATH / 'data'
 
-def test_correct_no_resid_corr():
-    result = correct_image(ct, coef, dark=dark, flat=flat)
+def test_correct_no_resid_corr_no_dask():
+    result = correct_image(ct, coef, dark=dark, flat=flat, verbose=True)
     b = result == corr_nr
     assert b.min() == True
 
-def test_correct_resid_corr():
-    result = correct_image(ct, coef, dark=dark, flat=flat, sigma=3)
+
+def test_correct_resid_corr_no_dask():
+    result = correct_image(ct, coef, dark=dark, flat=flat, sigma=3,  verbose=True)
     b = result == corr_r
     assert b.min() == True
+
+
+def test_correct_no_resid_corr_dask():
+    result = correct_image(ct, coef, dark=dark, flat=flat, use_dask=True,  verbose=True)
+    b = result == corr_nr
+    assert b.min() == True
+
+
+def test_correct_resid_corr_dask():
+    result = correct_image(ct, coef, dark=dark, flat=flat, use_dask=True, sigma=3,  verbose=True)
+    b = result == corr_r
+    assert b.min() == True
+
 
 def test_save_methods(save_dir=SAVE_DIR):
     ct = np.random.random((10, 10, 10))
@@ -57,5 +71,5 @@ def test_wrong_sigma():
     ct = np.random.random((10, 10, 10))
     coef = np.random.random((10, 10))
     _ = correct_image(ct, coef, 
-    sigma='muahahaha bet you did not expect a string', 
+    sigma='muahahaha bet you didnt expect a string', 
     verbose=True)

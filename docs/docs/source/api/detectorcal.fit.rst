@@ -1,5 +1,5 @@
-detectorcal.fit: Fitting coefficients to calibrate detector
-===========================================================
+detectorcal.fit
+===============
 
 .. automodule:: detectorcal.fit
    :members:

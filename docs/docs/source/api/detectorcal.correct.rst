@@ -1,5 +1,5 @@
-detectorcal.correct: Correction of image using fitted coefficients
-==================================================================
+detectorcal.correct
+===================
 
 .. automodule:: detectorcal.correct
    :members:

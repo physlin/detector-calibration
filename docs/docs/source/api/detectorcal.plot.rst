@@ -1,5 +1,5 @@
-detectorcal.plot: Plotting the detector calibration
-===================================================
+detectorcal.plot
+================
 
 .. automodule:: detectorcal.plot
    :members:

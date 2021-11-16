@@ -49,15 +49,15 @@ jobs:
       
       - name: Pytest
         run: |
-          export MPLBACKEND="ps"
+          #export MPLBACKEND="ps"
           python -c 'import matplotlib.pyplot as plt; print(plt.get_backend())'
           pytest --cov-report term-missing --cov .
-          coveralls
+          #coveralls
       
-      - name: Coveralls
-        if: runner.os == 'Linux' && matrix.python == '3.9'
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      #- name: Coveralls
+        #if: runner.os == 'Linux' && matrix.python == '3.9'
+        #uses: coverallsapp/github-action@master
+        #with:
+          #github-token: ${{ secrets.GITHUB_TOKEN }}
 
 

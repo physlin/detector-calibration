@@ -20,8 +20,9 @@ coeffd = io.imread(COEFD_DATA)
 
 def test_fit_rmdk(bs=bs, dk=dk, coeff=coeffd):
     out = fit_response(bs, dark=dk, verbose=True)
-    b = out == coeffd
-    assert b.min() == True
+    #b = out == coeffd
+    #assert b.min() == True
+    np.testing.assert_allclose(out, coeff, 0.001)
 
 
 def test_save_methods(save_dir=SAVE_DIR):
