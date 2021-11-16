@@ -53,7 +53,8 @@ def fit_response(
         Default None. Array containing the dark current image or None.
     save_path: None or str
         Default None. Path to which the fit coefficients should be saved.
-        If None, the coefficients will not be saved to disk. 
+        If None, the coefficients will not be saved to disk. Please save as
+        a tiff, hdf5, or zarr.
     sigma: scalar
         Default 50. Standard deviation of the Gaussian kernel to be used for 
         smoothing

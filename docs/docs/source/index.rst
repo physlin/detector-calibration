@@ -11,7 +11,7 @@ Python package for detector calibration. The algorithm was initially developed f
 
 .. note::
 
-   This project is under active development.
+   We welcome community contributions. If you have any bug fixes or ideas please raise an issue and create a linked pull request. Pull requests will be reviewed by the package maintainers.
 
 
 Installation
@@ -21,7 +21,14 @@ detectorcal can be found on the Python Package Index (PyPI) and can be installed
 
 .. code-block:: console
 
+   # CPU only version
    $ pip install detectorcal
+
+   # GPU version
+   $ pip install detectorcal[gpu]
+
+   # with testing suite
+   $ pip install detectorcal[testing]
 
 .. toctree::
    :maxdepth: 2
