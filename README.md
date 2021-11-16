@@ -113,15 +113,16 @@ corrected = correct_image(image, coefficients, dark=dark, flat=flat, save_path=s
 
 ## Citations
 
-*If you use this software, please cite the following papers:*
-
-Croton, L. C., ... and Kitchen, M.J., 2021. Detector calibration for effective DT ring artefact supressionwith polychromatic X-ray sources. In Press. 
+*If you use this software, please cite the following:*
 
 Croton, L.C., Ruben, G., Morgan, K.S., Paganin, D.M. and Kitchen, M.J., 
     2019. Ring artifact suppression in X-ray computed tomography using a 
     simple, pixel-wise response correction. Optics express, 27(10), 
     pp.14231-14245. https://doi.org/10.1364/OE.27.014231
 
+*In preparation:*
+
+L.C.P. Croton, G. Ruben, K.S. Morgan, A.S. McGovern, and M.J. Kitchen, Detector calibration for CT ring artifact suppression with polychromatic X-ray sources, in prep
 
 
 ## Contribution
