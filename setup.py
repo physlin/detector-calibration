@@ -12,9 +12,9 @@ setuptools.setup(
     long_description = long_description,
     long_description_content_type = 'text/markdown', 
     license = 'BSD 2-Clause License',
-    url = 'https://gitlab.erc.monash.edu.au/xrayimaging/detector-calibration',
+    url = 'https://github.com/physlin/detector-calibration',
     project_urls = {
-        'Bug Tracker' : 'https://gitlab.erc.monash.edu.au/xrayimaging/detector-calibration/-/issues'
+        'Bug Tracker' : 'https://github.com/physlin/detector-calibration/issues'
     },
     classifiers =
         ['Programming Language :: Python :: 3',
