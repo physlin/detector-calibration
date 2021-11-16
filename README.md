@@ -31,7 +31,7 @@ The algorithm implemented in this package corrects artefacts in images produced 
 During the 'fit' stage of the callibration process, a linear relationship between detector response and true stimulus intensity is found for every pixel in the detector. We can estimate the true intensity by applying a Gaussian filter to the stimulus-response image, which removes local pixel-to-pixel intensity variations. 
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=rqQI8tXwAgc" target="_blank">
- <img src="https://github.com/physlin/detector-calibration/blob/finishing-touches/data/detectorcal-fit-thumbnail.png" alt="Watch the video" width="100%" height="100%" border="10" />
+ <img src="https://github.com/physlin/detector-calibration/blob/main/data/detectorcal-fit-thumbnail.png" alt="Watch the video" width="100%" height="100%" border="10" />
 </a>
 
 
@@ -60,7 +60,7 @@ coefficients = fit_response(volume, dark=dark, save_path='path/to/which/to/save/
 
 The plots below show the calibration for 9 random pixels. These plots can be generated using `detectorcal.plot.plot_pixel_calibrations(volume, dark=dark, n_pixels=n)`, which will return fit lines and scatter plots showing measured- vs true intesity for `n` random pixels. 
 
-![Calibrations for 9 random pixels](https://github.com/physlin/detector-calibration/blob/finishing-touches/data/some_pixel_claibrations_0.png)
+![Calibrations for 9 random pixels](https://github.com/physlin/detector-calibration/blob/main/data/some_pixel_claibrations_0.png)
 
 ## Step 2: Correct
 
@@ -90,7 +90,7 @@ resid_corrected = correct_image(image, coefficients, dark=dark, flat=flat, sigma
 
 ```
 
-![correction](https://github.com/physlin/detector-calibration/blob/finishing-touches/data/detectorcal-correct.png)
+![correction](https://github.com/physlin/detector-calibration/blob/main/data/detectorcal-correct.png)
 
 A reconstructed image both with and without correction. Figure modified from Croton et al. (2019).
 
