@@ -21,16 +21,16 @@ pip install detectorcal[testing]
 
 ## Usage
 
-Using detectorcal is a two step process: (1) calibrating the detector response, which is done by `detectorcal.fit_response` ; and (2) applying the calibration to the image that you want to correct, which requires  `detectorcal.correct_image`. Input to these funtions is expected to be `np.ndarray`. Both functions can be used to save output directly when supplied with the `save_path` argument. We support saving output as `.tif`, `.hdf5`, and `.zarr` files. 
+Using detectorcal is a two step process: (1) calibrating the detector response, which is done by `detectorcal.fit_response` ; and (2) applying the calibration to the image or images that you want to correct, which requires  `detectorcal.correct_image`. Input to these funtions is expected to be `np.ndarray`. Both functions can be used to save output directly when supplied with the `save_path` argument. We support saving output as `.tif`, `.hdf5`, and `.zarr` files. 
 
 
 ## About `detectorcal`
 
-The algorithm implemented in this package corrects artefacts in images produced by a 2D detector by first finding the relationship between detector response and estimated true stimulus intensity. This relationship is then used this to 'reconstruct' an image aquired by the same detector. For this to work, you first need to aquire data that demonstrates the detector response across a range of stimulus intensities. For CT, this would be done by sweeping the detector through the X-ray beam to aquire images across the range of possible intensities. This stimulus-response data should be a 3D array of shape (z, y, x), where the z-axis represents the range of measurements for a single pixel and the x- and y-axes represent the position of each pixel within the detector. 
+The algorithm implemented in this package calibrates the response of a 2D detector using the measured pixel values, as well as an estimate of the true beam intensity, over a range of image intensities. This correction is then applied to an image or images aquired by the same detector. For this to work, you first need to aquire an image sequence across a range of beam intensities. For a synchrotron source, this would be done by sweeping the detector through the X-ray beam, exploiting the roll-off of the beam to aquire images across the range of possible intensities at every pixel. This intensity sequence should be a 3D array of shape (z, y, x), where the z-axis represents the range of measurements for each pixel, and the x- and y-axes represent the position of each pixel on the detector. 
 
 ### Step 1: Fit
 
-During the 'fit' stage of the callibration process, a linear relationship between detector response and true stimulus intensity is found for every pixel in the detector. We can estimate the true intensity by applying a Gaussian filter to the stimulus-response image, which removes local pixel-to-pixel intensity variations. 
+During the 'fit' stage of the calibration process, a linear regression is performed between the calibration sequence and the estimated true beam intensity for every pixel on the detector. We estimate the true intensity by smoothing each image of the calibration sequence with a Gaussian filter, which removes local pixel-to-pixel intensity variations. 
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=rqQI8tXwAgc" target="_blank">
  <img src="https://github.com/physlin/detector-calibration/blob/main/data/detectorcal-fit-thumbnail.png" alt="Watch the video" width="100%" height="100%" border="10" />
@@ -39,7 +39,7 @@ During the 'fit' stage of the callibration process, a linear relationship betwee
 
 *Image redirects to a video showing an example of* `fit_response`. Animations were created using `napari-animation`.
 
-Fitting is done using the `fit_response` function, for which example usage ish shown below. By default, the standard deviation for the Gaussian kernel used to smooth the image is 50 pixels. This can be adjusted using the optional `sigma` argument.
+Fitting is performed using the `fit_response` function, for which example usage is shown below. By default, the standard deviation for the Gaussian kernel used to smooth the image is 50 pixels. This can be adjusted using the optional `sigma` argument.
 
 ```Python
 from detectorcal import fit_response
