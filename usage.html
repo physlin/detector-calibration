@@ -1,0 +1,344 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="&lt;no title&gt;" href="api/api.html" /><link rel="prev" title="Welcome to detectorcal’s documentation!" href="index.html" />
+
+    <meta name="generator" content="sphinx-4.4.0, furo 2022.02.23"/>
+        <title>Using Detectorcal - detectorcal 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=3c656993158f05539f962c5cea52a5e6c184bb8c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=25ceb02ed1c46dc30f2321ff83e92799f69dfdb9" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  body[data-theme="dark"] {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+</style></head>
+  <body>
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">detectorcal 0.0.1 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">detectorcal 0.0.1 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Using Detectorcal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/detectorcal.fit.html">detectorcal.fit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/detectorcal.correct.html">detectorcal.correct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/detectorcal.plot.html">detectorcal.plot</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="using-detectorcal">
+<h1>Using Detectorcal<a class="headerlink" href="#using-detectorcal" title="Permalink to this headline">#</a></h1>
+<section id="about-detectorcal">
+<h2>About detectorcal<a class="headerlink" href="#about-detectorcal" title="Permalink to this headline">#</a></h2>
+<p>The algorithm implemented in this package corrects artefacts in images produced by a 2D detector by first finding the relationship between detector response and estimated true stimulus intensity. This relationship is then used this to ‘reconstruct’ an image aquired by the same detector. For this to work, you first need to aquire data that demonstrates the detector response across a range of stimulus intensities. For CT, this would be done by sweeping the detector through the X-ray beam to aquire images across the range of possible intensities. This stimulus-response data should be a 3D array of shape (z, y, x), where the z-axis represents the range of measurements for a single pixel and the x- and y-axes represent the position of each pixel within the detector.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">#</a></h2>
+<p>Using detectorcal is a two step process: (1) calibrating the detector response, which is done by <code class="docutils literal notranslate"><span class="pre">detectorcal.fit_response</span></code> ; and (2) applying the calibration to the image that you want to correct, which requires  <code class="docutils literal notranslate"><span class="pre">detectorcal.correct_image</span></code>. Input to these funtions is expected to be <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>. Both functions can be used to save output directly when supplied with the <code class="docutils literal notranslate"><span class="pre">save_path</span></code> argument. We support saving output as <code class="docutils literal notranslate"><span class="pre">.tif</span></code>, <code class="docutils literal notranslate"><span class="pre">.hdf5</span></code>, and <code class="docutils literal notranslate"><span class="pre">.zarr</span></code> files.</p>
+</section>
+<section id="step-1-fit">
+<h2>Step 1: Fit<a class="headerlink" href="#step-1-fit" title="Permalink to this headline">#</a></h2>
+<p>During the ‘fit’ stage of the callibration process, a linear relationship between detector response and true stimulus intensity is found for every pixel in the detector. We can estimate the true intensity by applying a Gaussian filter to the stimulus-response image, which removes local pixel-to-pixel intensity variations. g is done using the fit_response function, for which example usage ish shown below. By default, the standard deviation for the Gaussian kernel used to smooth the image is 50 pixels. This can be adjusted using the optional sigma argument.</p>
+<p>Fitting is done using the <code class="docutils literal notranslate"><span class="pre">fit_response</span></code> function, for which example usage ish shown below. By default, the standard deviation for the Gaussian kernel used to smooth the image is 50 pixels. This can be adjusted using the optional <code class="docutils literal notranslate"><span class="pre">sigma</span></code> argument.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">detectorcal</span> <span class="kn">import</span> <span class="n">fit_response</span>
+<span class="kn">from</span> <span class="nn">skimage.io</span> <span class="kn">import</span> <span class="n">imread</span> <span class="c1"># or any array reading modality of your choice</span>
+
+<span class="c1"># read in your detector response data as a numpy array. shape = (z, y, x)</span>
+<span class="n">volume</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="s1">'path/to/image/volume'</span><span class="p">)</span>
+
+<span class="c1"># read in the dark current image to be subtracted from each yx plane. shape = (y, x)</span>
+<span class="n">dark</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="s1">'path/to/dark/current/image'</span><span class="p">)</span>
+
+<span class="c1"># Get the linear coefficients for the detector. shape = (y, x)</span>
+<span class="n">coefficients</span> <span class="o">=</span> <span class="n">fit_response</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">dark</span><span class="o">=</span><span class="n">dark</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="s1">'path/to/which/to/save/coefficients'</span><span class="p">)</span>
+
+<span class="c1"># P.S. if you wish to fit the response to a volume without first subtracking the</span>
+<span class="c1"># dark current (perhaps you already did this), the `dark` argument can be omitted</span>
+
+<span class="c1"># P.S.S. If you don't wish to save the coefficients the `save` argument can also be omitted</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-correct">
+<h2>Step 2: Correct<a class="headerlink" href="#step-2-correct" title="Permalink to this headline">#</a></h2>
+<p>Once the coefficients for the detector are found, they can be used to correct data aquired by the detector using <code class="docutils literal notranslate"><span class="pre">correct_image</span></code>. If you provide a flat field image (i.e., mean of flat field [sample free] images aquired with the CT sequence), the function will apply flat field correction. For flat field correction, the flat field is first smoothed (using the same gaussian smoothing as in step 1), then used to normalise the corrected image.</p>
+<p>If there is likely to be any substantial changes in the optical system between aquiring the detector response volume and the sample image (e.g., dust on the sensor, etc), these changes can also be corrected using the flat field image. This is done by finding the residual differences between the estimated true flat field (smoothed) and the coefficient-corrected flat field (using coefficients found in step 1). The residuals can be removed from the smoothed flat field prior to flat field correction. Because the residuals themselves are prone to noise, removal of all residuals may introduce new artifacts. For this reason, only large (i.e., real) residuals should be removed. The user can define the number of standard deviations above which residuals will be removed (we suggest <code class="docutils literal notranslate"><span class="pre">sigma</span> <span class="pre">=</span> <span class="pre">3</span></code>). By default the <code class="docutils literal notranslate"><span class="pre">sigma</span></code> argument is <code class="docutils literal notranslate"><span class="pre">None</span></code> meaning that the residual correction will not go ahead.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">detectorcal</span> <span class="kn">import</span> <span class="n">correct_image</span>
+<span class="kn">from</span> <span class="nn">skimage.io</span> <span class="kn">import</span> <span class="n">imread</span>
+
+<span class="c1"># get the coefficients (either using the method above or from file)</span>
+<span class="n">coefficients</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="s1">'path/to/coefficients'</span><span class="p">)</span>
+
+<span class="c1"># get the image you wish to correct (shape = (z, y, x) or (y, x))</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="s1">'path/to/image'</span><span class="p">)</span>
+
+<span class="c1"># get the dark field and flat field images for flat field correction</span>
+<span class="n">dark</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="s1">'path/to/dark/field'</span><span class="p">)</span> <span class="c1"># shape = (y, x)</span>
+<span class="n">flat</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="s1">'path/to/flat/field'</span><span class="p">)</span> <span class="c1"># shape = (y, x)</span>
+
+<span class="c1"># obtain the corrected image</span>
+<span class="n">corrected</span> <span class="o">=</span> <span class="n">correct_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="n">dark</span><span class="o">=</span><span class="n">dark</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="n">flat</span><span class="p">)</span>
+
+<span class="c1"># if you wish to correct with residual correction</span>
+<span class="n">resid_corrected</span> <span class="o">=</span> <span class="n">correct_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="n">dark</span><span class="o">=</span><span class="n">dark</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="n">flat</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">3.</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="correcting-large-arrays">
+<h2>Correcting Large Arrays<a class="headerlink" href="#correcting-large-arrays" title="Permalink to this headline">#</a></h2>
+<p>When the input volume is too large, the former code will raise a memory error. If this is the case, computation can still be completed by setting the <code class="docutils literal notranslate"><span class="pre">use_dask</span></code> flag as <code class="docutils literal notranslate"><span class="pre">True</span></code>. Using <code class="docutils literal notranslate"><span class="pre">dask</span></code> as a backend, this allows computations to be carried out and written to disk without ever exceeding RAM. If the array is too large to read in as a numpy array, please use <code class="docutils literal notranslate"><span class="pre">dask</span></code> or <code class="docutils literal notranslate"><span class="pre">dask_image</span></code>. When you input a dask array, the <code class="docutils literal notranslate"><span class="pre">use_dask</span></code> flag will automatically be set to <code class="docutils literal notranslate"><span class="pre">True</span></code>. Also note that When the corrected image is expected to be bigger-than-RAM, the file should be saved as a zarr or hdf5, as we do not currently support big tiffs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dask_image.imread</span> <span class="kn">import</span> <span class="n">imread</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="s1">'path/to/image'</span><span class="p">)</span>
+
+<span class="c1"># save path as zarr or hdf5</span>
+<span class="n">save_path</span> <span class="o">=</span> <span class="s1">'path/to/which/to/save/corrected.zarr'</span>
+
+<span class="c1"># obtain the corrected image</span>
+<span class="n">corrected</span> <span class="o">=</span> <span class="n">correct_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">,</span> <span class="n">dark</span><span class="o">=</span><span class="n">dark</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="n">flat</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="n">save_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="api/api.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">&lt;no title&gt;</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Home</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2021, Abigail McGovern &amp; Linda Croton
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Using Detectorcal</a><ul>
+<li><a class="reference internal" href="#about-detectorcal">About detectorcal</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#step-1-fit">Step 1: Fit</a></li>
+<li><a class="reference internal" href="#step-2-correct">Step 2: Correct</a></li>
+<li><a class="reference internal" href="#correcting-large-arrays">Correcting Large Arrays</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    </body>
+</html>
