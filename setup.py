@@ -42,5 +42,6 @@ setuptools.setup(
     extras_require={
         'testing': ['pytest', 'pytest-cov', 'coverage', 'asv'],
         'gpu': ['cupy'],  # pip install detectorcal[gpu]
+        'docs': ['sphinx', 'furo', 'numpydoc'],
     },
 )
